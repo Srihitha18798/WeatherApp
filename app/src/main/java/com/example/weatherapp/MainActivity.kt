@@ -15,23 +15,12 @@ import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.loopj.android.http.RequestParams
 import cz.msebera.android.httpclient.Header
+import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
 import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
-    val app_id="28e1a13aa92ec8485c26eab38b82b23f"
-    val weather_url="https://api.openweathermap.org/data/2.5/weather"
-    val min_time=5000
-    val min_distance=1000
-    val request_code=101
-    val location_provider=LocationManager.GPS_PROVIDER
 
-
-    lateinit var weatherState:TextView
-    lateinit var temperature:TextView
-    lateinit var weatherIcon:ImageView
-    lateinit var mCityFinder:RelativeLayout
-    lateinit var nameOfCity:TextView
     lateinit var mLocationManager:LocationManager
     lateinit var mLocationListener:LocationListener
 
@@ -40,24 +29,47 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        weatherState= findViewById<TextView>(R.id.weatherCondition)
-        temperature=findViewById<TextView>(R.id.temperature)
-        weatherIcon=findViewById<ImageView>(R.id.weatherIcon)
-        mCityFinder=findViewById<RelativeLayout>(R.id.cityFinder)
-        nameOfCity=findViewById<TextView>(R.id.cityName)
 
-       mCityFinder.setOnClickListener {
+
+       cityFinder.setOnClickListener {
 
            var intent=Intent(this,CityFinder::class.java)
            startActivity(intent)
        }
     }
 
-    override fun onResume() {
+    /*override fun onResume() {
         super.onResume()
         getWeatherForCurrentLocation()
 
+    }*/
+
+
+    override fun onResume() {
+        super.onResume()
+        var mIntent=intent
+        var city=mIntent.getStringExtra("City")
+        if(city!=null){
+            getWeatherForNewCity(city)
+        }
+        else{
+            getWeatherForCurrentLocation()
+        }
     }
+
+    private fun getWeatherForNewCity(city:String){
+        var params=RequestParams()
+        params.put("q",city)
+        params.put("appid",app_id)
+        letsDoSomeNetworking(params)
+    }
+
+
+
+
+
+
+
 
     private fun getWeatherForCurrentLocation(){
         mLocationManager=getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -65,8 +77,6 @@ class MainActivity : AppCompatActivity() {
             override fun onLocationChanged(location: Location) {
                 var latitude=location.latitude.toString()
                 var logitude=location.longitude.toString()
-
-
 
 
 
@@ -144,18 +154,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun updateUI(weather:WeatherDetails){
-        temperature.setText(weather.getmTemperature())
-        nameOfCity.setText(weather.getmCity())
-        weatherState.setText(weather.mweatherType)
+        temperature.text = weather.getmTemperature()
+        cityName.text = weather.getmCity()
+        weatherCondition.text = weather.mweatherType
         var resorceId=resources.getIdentifier(weather.getmIcon(),"drawable",packageName)
         weatherIcon.setImageResource(resorceId)
     }
 
-    override fun onPause() {
+    /*override fun onPause() {
         super.onPause()
         if(mLocationManager!=null){
             mLocationManager.removeUpdates(mLocationListener)
         }
-    }
+    }*/
 
 }
