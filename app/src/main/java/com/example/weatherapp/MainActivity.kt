@@ -21,8 +21,8 @@ import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var mLocationManager:LocationManager
-    lateinit var mLocationListener:LocationListener
+    lateinit var mLocationManager: LocationManager
+    lateinit var mLocationListener: LocationListener
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,84 +31,72 @@ class MainActivity : AppCompatActivity() {
 
 
 
-       cityFinder.setOnClickListener {
+        cityFinder.setOnClickListener {
 
-           var intent=Intent(this,CityFinder::class.java)
-           startActivity(intent)
-       }
+            val intent = Intent(this, CityFinder::class.java)
+            startActivity(intent)
+        }
     }
-
-    /*override fun onResume() {
-        super.onResume()
-        getWeatherForCurrentLocation()
-
-    }*/
-
 
     override fun onResume() {
         super.onResume()
-        var mIntent=intent
-        var city=mIntent.getStringExtra("City")
-        if(city!=null){
+        val mIntent = intent
+        val city = mIntent.getStringExtra("City")
+        if (city != null) {
             getWeatherForNewCity(city)
-        }
-        else{
+        } else {
             getWeatherForCurrentLocation()
         }
     }
 
-    private fun getWeatherForNewCity(city:String){
-        var params=RequestParams()
-        params.put("q",city)
-        params.put("appid",app_id)
+    private fun getWeatherForNewCity(city: String) {
+        val params = RequestParams()
+        params.put("q", city)
+        params.put("appid", app_id)
         letsDoSomeNetworking(params)
     }
 
 
-
-
-
-
-
-
-    private fun getWeatherForCurrentLocation(){
-        mLocationManager=getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        mLocationListener = object :LocationListener{
+    private fun getWeatherForCurrentLocation() {
+        mLocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        mLocationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
-                var latitude=location.latitude.toString()
-                var logitude=location.longitude.toString()
-
-
-
-
-                var params: RequestParams =RequestParams();
+                val latitude = location.latitude.toString()
+                val logitude = location.longitude.toString()
+                val params: RequestParams = RequestParams();
                 params.put("lat", latitude)
-                params.put("lon",logitude)
-                params.put("appid",app_id)
+                params.put("lon", logitude)
+                params.put("appid", app_id)
                 letsDoSomeNetworking(params)
-
-
             }
 
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-                //super.onStatusChanged(provider, status, extras)
             }
 
             override fun onProviderDisabled(provider: String) {
-                //
+
             }
 
             override fun onProviderEnabled(provider: String) {
-                //
+
             }
 
 
         }
 
         //mLocationManager.requestLocationUpdates(location_provider,min_time,min_distance,mLocationListener)
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),request_code)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), request_code
+            )
             return
 
 
@@ -121,43 +109,54 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode==request_code){
-            if(grantResults.isNotEmpty() && grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                Toast.makeText(this,"Locationget Successfully",Toast.LENGTH_SHORT).show()
+        if (requestCode == request_code) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Locationget Successfully", Toast.LENGTH_SHORT).show()
                 getWeatherForCurrentLocation()
-            }
-            else{
+            } else {
                 //user denied the permission
             }
         }
     }
-    fun letsDoSomeNetworking(params: RequestParams){
-        var client:AsyncHttpClient= AsyncHttpClient()
-        client.get(weather_url,params,object :JsonHttpResponseHandler(){
-            override fun onSuccess(statusCode: Int,headers: Array<out Header>?,response: JSONObject) {
 
-                Toast.makeText(this@MainActivity,"Data Get Success",Toast.LENGTH_SHORT).show()
-                var weatherD: WeatherDetails? = WeatherDetails.fromJson(response)
+    fun letsDoSomeNetworking(params: RequestParams) {
+        val client: AsyncHttpClient = AsyncHttpClient()
+        client.get(weather_url, params, object : JsonHttpResponseHandler() {
+            override fun onSuccess(
+                statusCode: Int,
+                headers: Array<out Header>?,
+                response: JSONObject
+            ) {
+
+                Toast.makeText(this@MainActivity, "Data Get Success", Toast.LENGTH_SHORT).show()
+                val weatherD: WeatherDetails? = WeatherDetails.fromJson(response)
                 if (weatherD != null) {
                     updateUI(weatherD)
                 }
-                          //super.onSuccess(statusCode, headers, response)
             }
 
-            override fun onFailure(statusCode: Int, headers: Array<out Header>?, responseString: String?, throwable: Throwable?) {
-                //super.onFailure(statusCode, headers, responseString, throwable)
+            override fun onFailure(
+                statusCode: Int,
+                headers: Array<out Header>?,
+                responseString: String?,
+                throwable: Throwable?
+            ) {
             }
 
         })
     }
 
-    fun updateUI(weather:WeatherDetails){
+    fun updateUI(weather: WeatherDetails) {
         temperature.text = weather.getmTemperature()
         cityName.text = weather.getmCity()
         weatherCondition.text = weather.mweatherType
-        var resorceId=resources.getIdentifier(weather.getmIcon(),"drawable",packageName)
+        val resorceId = resources.getIdentifier(weather.getmIcon(), "drawable", packageName)
         weatherIcon.setImageResource(resorceId)
     }
 
