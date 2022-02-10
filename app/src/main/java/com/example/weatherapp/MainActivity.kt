@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == request_code) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Locationget Successfully", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "Locationget Successfully", Toast.LENGTH_SHORT).show()
                 getWeatherForCurrentLocation()
             } else {
                 //user denied the permission
@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
                 response: JSONObject
             ) {
 
-                Toast.makeText(this@MainActivity, "Data Get Success", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this@MainActivity, "Data Get Success", Toast.LENGTH_SHORT).show()
                 val weatherD: WeatherDetails? = WeatherDetails.fromJson(response)
                 if (weatherD != null) {
                     updateUI(weatherD)
@@ -160,11 +160,5 @@ class MainActivity : AppCompatActivity() {
         weatherIcon.setImageResource(resorceId)
     }
 
-    /*override fun onPause() {
-        super.onPause()
-        if(mLocationManager!=null){
-            mLocationManager.removeUpdates(mLocationListener)
-        }
-    }*/
 
 }
